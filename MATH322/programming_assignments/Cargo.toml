@@ -1,0 +1,12 @@
+[package]
+name = "programming_assignments"
+version = "0.1.0"
+authors = ["Addie Morrison <0xADD1E@gmail.com>"]
+
+[dependencies]
+#The just-barely-not-std stuff
+failure = "0.1.2"
+tempfile = "3.0.3"
+
+#The actual crates
+dot = "0.1.4"
