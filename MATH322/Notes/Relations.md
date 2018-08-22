@@ -62,8 +62,8 @@ A relation (defined from $A$ to $A$) is *symmetric* if $\forall a\forall b\,(b,a
 
 $\forall a\forall b\,((b,a)\in R \iff (a,b)\in R)\to a=b$
 
-- This means equality is both *symmetric* and *antisymmetric*
-- For a less cheaty example, $\le$ is *antisymmetric*
+- This means equality **is both *symmetric* and *antisymmetric***
+- For a less cheaty example, $\le​$ is *antisymmetric*
 
 A relation $R$ (defined from $A$ to $A$) is *transitive* if $((a,b)\in R)\and(b,c)\in R)\to (a,c)\in R$
 
