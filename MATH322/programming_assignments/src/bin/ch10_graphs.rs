@@ -11,8 +11,10 @@ struct Node {
     edges: Vec<String>, // A Vec<Node*> would def be the conventional way of doing this
                         //But this is easier on both the type/borrow checker, and kate-brain
 }
-
-fn main() -> Result<(), failure::Error> {
+fn main() {
+    run_main().unwrap();
+}
+fn run_main() -> Result<(), failure::Error> {
     env_logger::init();
 
     let file = programming_assignments::get_argv1()?;

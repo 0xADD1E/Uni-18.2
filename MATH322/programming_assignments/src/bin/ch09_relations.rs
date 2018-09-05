@@ -5,7 +5,10 @@ extern crate failure;
 extern crate programming_assignments;
 extern crate regex;
 
-fn main() -> Result<(), failure::Error> {
+fn main(){
+    run_main().unwrap();
+}
+fn run_main() -> Result<(), failure::Error> {
     env_logger::init();
 
     let file = programming_assignments::get_argv1()?;
