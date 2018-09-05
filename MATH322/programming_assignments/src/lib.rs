@@ -2,7 +2,6 @@
 extern crate log;
 extern crate failure;
 
-use std::io::Read;
 use std::iter::FromIterator;
 pub fn get_argv1() -> Result<String, failure::Error> {
     let argv = Vec::from_iter(std::env::args());
