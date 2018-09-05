@@ -6,7 +6,7 @@ use std::io::Read;
 use std::iter::FromIterator;
 pub fn get_argv1() -> Result<String, failure::Error> {
     let argv = Vec::from_iter(std::env::args());
-    debug!("Full argv is {:?}",argv);
+    debug!("Full argv is {:?}", argv);
     if argv.len() <= 1 {
         Err(failure::err_msg("Expected one argument"))
     } else {
