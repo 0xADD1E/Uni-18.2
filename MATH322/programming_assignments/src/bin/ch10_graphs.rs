@@ -5,12 +5,9 @@ extern crate failure;
 extern crate programming_assignments;
 extern crate regex;
 
-#[derive(Debug)]
-struct Node {
-    name: String,
-    edges: Vec<String>, // A Vec<Node*> would def be the conventional way of doing this
-                        //But this is easier on both the type/borrow checker, and kate-brain
-}
+use std::collections::{HashSet,HashMap};
+    use std::iter::FromIterator;
+
 fn main() {
     run_main().unwrap();
 }
@@ -23,44 +20,72 @@ fn run_main() -> Result<(), failure::Error> {
     let mut string = String::new();
 
     use std::io::Read;
-    use std::iter::FromIterator;
     info!("Reading file {:?}", file);
     file.read_to_string(&mut string)?;
-    let string = Vec::from_iter(string.split("\n"));
-    let (l1, l2) = (string[0], string[1].replace(" ", ""));
-    debug!("Got string {:?} with lines '{}', '{}'", string, l1, l2);
+    let string: Vec<Vec<String>> = string
+        .replace(" ", "")
+        .split("\n")
+        .map(|l| l.split(",").map(|s| s.to_string()).collect())
+        .collect();
 
-    use std::collections::{HashMap,HashSet};
+    let mut nodes_map = HashMap::new();
+    let mut nodes_map_rev = HashMap::new();
     let mut nodes = HashMap::new();
-    for symbol in l1.split(", ") {
-        debug!("Adding a new node: {}", symbol);
-        nodes.insert(symbol.to_string(), HashSet::new());
+    for (idx,symbol) in string[0].iter().enumerate() {
+        nodes_map_rev.insert(idx,symbol);
+        nodes_map.insert(symbol,idx);
+        nodes.insert(idx, mut HashSet::new());
     }
+    let (n_start, n_end) = (nodes_map[&string[1][0]], nodes_map[&string[1][1]]);
 
-    let re = regex::Regex::new(r"\((.+?),(.+?)\);")?;
-    for (a, b) in re
-        .captures_iter(&l2)
-        .filter_map(|m| match (m.get(1), m.get(2)) {
-            (Some(a), Some(b)) => {
-                trace!("Successfully matched regex elems 2,3 as {:?},{:?}", a, b);
-                Some((String::from(a.as_str()), String::from(b.as_str())))
+    for line in string[2..].iter() {
+        use std::str::FromStr;
+        let (src, dst, weight) = (
+            nodes_map[&line[0]],
+            nodes_map[&line[1]],
+            i32::from_str(&line[2])?,
+        );
+        nodes[&src].insert((dst,weight));
+        nodes[&dst].insert((src,weight));
+    }
+    let (distance, path) = dijkstra(nodes, n_start, n_end)?;
+    let path = path
+        .iter()
+        .map(|l|nodes_map_rev[l])
+        .fold(String::new(), |acc, x| acc + ", " + x)[2..].to_string();
+    println!("{}", distance);
+    println!("{}", path);
+    Ok(())
+}
+
+fn dijkstra(
+    nodes: HashMap<usize, HashSet<(usize,i32)>>,
+    start: usize,
+    end: usize,
+) -> Result<(i32, Vec<usize>), failure::Error> {
+    let mut distances = HashMap::new();
+    for node in nodes.keys(){
+        distances.insert(node, i32::max_value());
+    }
+    distances[&start] = 0;
+    let mut visited_nodes = HashSet::new();
+    let mut queue: HashSet<&usize> = HashSet::from_iter(nodes.keys());
+
+    while queue.len()>0 {
+        if let Some((min_key,min_val)) = queue.iter().map(|n|(n,distances[n])).min(){
+            let node = &nodes[min_key];
+            visited_nodes.insert(min_key);
+            for (neighbour,weight) in node{
+                if distances[min_key] + weight < distances[&neighbour]{
+                    distances[&neighbour] += weight;
+                }
             }
-            _ => {
-                error!("Found invalid match pattern on match {:?}", m);
-                None
-            }
-        }) {
-        debug!("Attempting to add edge {} to node {}", a, b);
-        if let Some(node) = nodes.get_mut(&b.to_string()) {
-            trace!("Successfully looked up node {}", b);
-            node.insert(a.clone());
-        }
-        debug!("Attempting to add edge {} to node {}", b, a);
-        if let Some(node) = nodes.get_mut(&a.to_string()){
-            trace!("Successfully looked up node {}", a);
-            node.insert(b);
         }
     }
-    println!("{:?}", nodes);
-    Ok(())
+    //Find the node with the shortest distance
+    // Add it to visited_nodes
+    //iter over its neighbours
+        // if distance to the neighbour > 
+
+    Ok((0, vec![0, 1, 2]))
 }
